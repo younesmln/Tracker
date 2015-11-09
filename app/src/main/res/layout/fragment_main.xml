@@ -4,10 +4,14 @@
     tools:context="com.pfe.projet.tracker.MainFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
     android:orientation="vertical">
         <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:text="" android:id="@+id/yesy"/>
-     <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:text="" android:id="@+id/uuid"/>
+            android:text="!" android:id="@+id/location" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="!" android:id="@+id/uuid"/>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="!" android:id="@+id/time"/>
+
 </LinearLayout>
 
