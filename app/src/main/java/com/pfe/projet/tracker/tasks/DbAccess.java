@@ -25,7 +25,6 @@ public class DbAccess extends AsyncTask<Void, Void, SQLiteDatabase> {
     @Override
     protected SQLiteDatabase doInBackground(Void...params) {
         LocationDB db = new LocationDB((Context) call.get());
-        //db.onCreate(db.getWritableDatabase());
         return db.getWritableDatabase();
     }
 

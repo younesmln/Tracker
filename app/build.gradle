@@ -22,7 +22,8 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
+    //compile 'com.android.support:design:21.1.2'
     compile 'com.android.support:appcompat-v7:21.0.3'
-    compile 'com.google.android.gms:play-services:7+'
+    compile 'com.google.android.gms:play-services:7.5.0'
     compile 'com.android.support:multidex:1.0.0'
 }
