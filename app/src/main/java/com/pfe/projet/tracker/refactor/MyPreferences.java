@@ -1,10 +1,8 @@
-package com.pfe.projet.tracker.preferences;
+package com.pfe.projet.tracker.refactor;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-
-import com.pfe.projet.tracker.R;
 
 public class MyPreferences {
     private static MyPreferences instance = null;

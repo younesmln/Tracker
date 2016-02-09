@@ -21,8 +21,6 @@ public class CRUD {
         values.put(LocationContract.LocationEntry.COLUMN_LATITUDE, l.getLt());
         values.put(LocationContract.LocationEntry.COLUMN_TIME, l.getTime());
         status = mDb.insert(LocationContract.LocationEntry.TABLE_NAME, null, values);
-        Log.i(TAG, "*****************************************************************************");
-        Log.i(TAG, status + "");
         return status;
     }
 

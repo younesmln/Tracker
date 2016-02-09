@@ -2,7 +2,6 @@ package com.pfe.projet.tracker.data;
 
 import android.provider.BaseColumns;
 
-
 public class LocationContract {
 
     public class LocationEntry implements BaseColumns {
