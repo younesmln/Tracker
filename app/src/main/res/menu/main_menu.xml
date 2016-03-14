@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/custom_menu"
+        android:title="test"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_clients"
+        android:title="clients" />
+    <item
+        android:id="@+id/action_test"
+        android:title="clients douzer" />
+</menu>

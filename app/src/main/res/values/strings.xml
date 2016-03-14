@@ -1,10 +1,13 @@
 <resources>
     <string name="app_name">Tracker</string>
 
-<!-- TODO: Remove or change this placeholder text -->
+    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_maps">Map</string>
 
     <string name="first_time_launch_key">first_time</string>
     <string name="activated">location_lookup</string>
+    <string name="title_activity_client">Clients</string>
+    <string name="title_client_list">Clients</string>
+    <string name="title_client_detail">Client Detail</string>
 </resources>
