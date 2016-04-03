@@ -23,7 +23,13 @@ import com.example.supernova.pfe.fragments.AddProductFragment;
 import com.example.supernova.pfe.fragments.ClientDetailFragment;
 import com.example.supernova.pfe.refactor.Util;
 import com.example.supernova.pfe.tasks.ApiAccess;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
@@ -57,6 +63,8 @@ public class NewInvoiceActivity extends AppCompatActivity implements AddProductF
             }
         }
         setupProductRecyclerView();
+
+        assert fab != null;
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -68,6 +76,7 @@ public class NewInvoiceActivity extends AppCompatActivity implements AddProductF
                 resultFragment.show(fTransaction, "dialog");
             }
         });
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
@@ -126,10 +135,35 @@ public class NewInvoiceActivity extends AppCompatActivity implements AddProductF
         int id = item.getItemId();
         switch (id){
             case R.id.action_done:
-                Toast.makeText(NewInvoiceActivity.this, "done with "+adapter.getItemCount(), Toast.LENGTH_SHORT).show();
+                parseAndSendInvoice();
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void parseAndSendInvoice(){
+        String response = null;
+        final JsonObject object = new JsonObject();
+        JsonObject product;
+        final JsonArray products = new JsonArray();
+        object.addProperty("total", adapter.getTotal());
+        for (Product p : adapter.getData()) {
+            product = new JsonObject();
+            product.addProperty("product_id", p.getId());
+            product.addProperty("label", p.getLabel());
+            product.addProperty("count", p.getCountToBuy());
+            products.add(product);
+        }
+        object.add("products", products);
+        Log.i(TAG, object.toString());
+        Uri uri = Uri.parse(Util.host).buildUpon().appendPath("clients")
+                .appendPath(client_id).appendPath("invoices.json").build();
+        try {
+            response = new ApiAccess().setUri(uri).setMethod("POST").setBody(object.toString()).execute().get();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.i(TAG, "! " + response);
     }
 
 }
