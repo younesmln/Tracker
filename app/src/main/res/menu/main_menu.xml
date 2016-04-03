@@ -7,8 +7,6 @@
         app:showAsAction="always" />
     <item
         android:id="@+id/action_clients"
-        android:title="clients" />
-    <item
-        android:id="@+id/action_test"
-        android:title="clients douzer" />
+        android:title="clients"
+        app:showAsAction="never"/>
 </menu>

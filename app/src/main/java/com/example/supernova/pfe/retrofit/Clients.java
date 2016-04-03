@@ -1,6 +1,6 @@
 package com.example.supernova.pfe.retrofit;
 
-import com.example.supernova.pfe.data.Client;
+import com.example.supernova.pfe.data.models.Client;
 
 import java.util.List;
 

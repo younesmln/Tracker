@@ -13,8 +13,7 @@ import android.support.v4.app.TaskStackBuilder;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
-import com.example.supernova.pfe.data.Client;
-import com.google.android.gms.location.FusedLocationProviderApi;
+import com.example.supernova.pfe.refactor.Util;
 import com.example.supernova.pfe.activities.MainActivity;
 import com.example.supernova.pfe.R;
 import com.example.supernova.pfe.data.CRUD;
@@ -22,9 +21,7 @@ import com.example.supernova.pfe.data.LocationDB;
 import com.example.supernova.pfe.data.LocationInfo;
 import com.example.supernova.pfe.tasks.SendLocation;
 import com.google.android.gms.location.LocationResult;
-import com.google.gson.Gson;
 
-import java.util.ArrayList;
 import java.util.Date;
 
 
@@ -87,12 +84,13 @@ public class LocationService extends IntentService {
             NotificationManager notificationManager = (NotificationManager)
                     getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.notify(mId, mNotification.build());
-            String result = new SendLocation(mLocationInfo).startSending();
-            Log.v("ouiiiiii", result+"  ");
-            Intent i = new Intent(BroadcastResult.IntentFilterString);
-
-            i.putExtra("result", result);
-            sendBroadcast(i);
+            if (Util.isConnected()) {
+                String result = new SendLocation(mLocationInfo).startSending();
+                Log.v("ouiiiiii", result+"  ");
+                Intent i = new Intent(BroadcastResult.IntentFilterString);
+                i.putExtra("result", result);
+                sendBroadcast(i);
+            }
         }
     }
 }

@@ -10,4 +10,13 @@
     <string name="title_activity_client">Clients</string>
     <string name="title_client_list">Clients</string>
     <string name="title_client_detail">Client Detail</string>
+
+    <string name="connection_problem">Problem while submitting the request ....</string>
+    <string name="title_activity_new_invoice">newInvoiceActivity</string>
+
+    <string name="select_client">Select a client</string>
+
+    <string name="total_products_display" translatable="false">
+        total : <b>%1$.2f</b> DA
+    </string>
 </resources>

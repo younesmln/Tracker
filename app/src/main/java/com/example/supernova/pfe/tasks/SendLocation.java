@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.example.supernova.pfe.data.LocationInfo;
+import com.example.supernova.pfe.refactor.Util;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,7 +23,7 @@ public class SendLocation {
     public String startSending(){
         Log.v("SendLocation : ", " start sending *****************************");
         if(this.toSend != null && this.toSend.length() > 0){
-            Uri uri = Uri.parse("http://10.0.3.2:3000").buildUpon()
+            Uri uri = Uri.parse(Util.host).buildUpon()
                     .appendPath("api")
                     .appendPath("insertPosition").build();
             try {

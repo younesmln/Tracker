@@ -2,40 +2,57 @@ package com.example.supernova.pfe.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.supernova.pfe.R;
-import com.example.supernova.pfe.data.models.Client;
+import com.example.supernova.pfe.data.models.Product;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class ClientsAdapter extends RecyclerView.Adapter<ClientsAdapter.MyClass> {
+public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.MyClass> {
     public static String TAG = "ADAPTER";
     public static LayoutInflater mInflater;
-    boolean mTwoPane;
     OnItemClickListener mItemClickListener;
-    List<Client> data = Collections.emptyList();
+    ArrayList<Product> data;
 
-    public ClientsAdapter(Context context, List<Client> data) {
+    public ProductsAdapter(Context context, ArrayList<Product> data) {
         mInflater = LayoutInflater.from(context);
         this.data = data;
     }
 
-    public Client getItem(int id){
+    public List<Product> getData(){
+        return this.data;
+    }
+
+    public Product getItem(int id){
         return this.data.get(id);
+    }
+
+    public double getTotal(){
+        double total = 0;
+        for (Product product : this.data) total += (product.getPrice() * product.getCountToBuy());
+        return total;
+    }
+
+    public void add(Product p){
+        this.data.add(p);
+        notifyItemInserted(this.data.size()-1);
     }
 
     @Override
     public MyClass onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = mInflater.inflate(R.layout.recycle_row, parent, false);
+        View v = mInflater.inflate(R.layout.recycle_row_product, parent, false);
         MyClass holder = new MyClass(v);
         return holder;
     }
@@ -47,9 +64,9 @@ public class ClientsAdapter extends RecyclerView.Adapter<ClientsAdapter.MyClass>
 
     @Override
     public void onBindViewHolder(MyClass holder, final int position) {
-        Client current = data.get(position);
-        holder.setValues(R.drawable.common_full_open_on_phone, current.getFullName(),
-                current.getPhone(), "right text");
+        Product current = data.get(position);
+        holder.setValues(current.getLabel(), current.getCountToBuy(), current.getPrice(),
+                current.getPrice()*current.getCountToBuy());
     }
 
     @Override
@@ -58,27 +75,28 @@ public class ClientsAdapter extends RecyclerView.Adapter<ClientsAdapter.MyClass>
     }
 
     public class MyClass extends RecyclerView.ViewHolder implements View.OnClickListener {
-        @Bind(R.id.image)
-        public ImageView imageView;
-        @Bind(R.id.text_top)
-        public TextView topText;
-        @Bind(R.id.text_bottom)
-        public TextView bottomText;
-        @Bind(R.id.text_right)
-        public TextView rightText;
+        @Bind(R.id.prodcut_name_textview)
+        public TextView textViewLabel;
+        @Bind(R.id.product_count_textview)
+        public TextView textViewCount;
+        @Bind(R.id.product_price_textview)
+        public TextView textViewPrice;
+        @Bind(R.id.product_totalprice_textview)
+        public TextView textViewTotal;
 
         public MyClass(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
             //imageView.setOnClickListener(this);
             itemView.setOnClickListener(this);
+
         }
 
-        public void setValues(int resId, String topText, String bottomText, String rightText) {
-            this.imageView.setImageResource(resId);
-            this.topText.setText(topText);
-            this.bottomText.setText(bottomText);
-            this.rightText.setText(rightText);
+        public void setValues(String label, int count, double price, double total) {
+            this.textViewLabel.setText(label);
+            this.textViewCount.setText(String.valueOf(count));
+            this.textViewPrice.setText(String.valueOf(price));
+            this.textViewTotal.setText(String.valueOf(total));
         }
 
         @Override
@@ -105,10 +123,10 @@ public class ClientsAdapter extends RecyclerView.Adapter<ClientsAdapter.MyClass>
     }
 
     public interface OnItemClickListener {
-        void onItemClick(View view , int position);
+        void onItemClick(View view, int position);
     }
 
-    public void SetOnItemClickListener(final OnItemClickListener mItemClickListener) {
+    public void setOnItemClickListener(final OnItemClickListener mItemClickListener) {
         this.mItemClickListener = mItemClickListener;
     }
 }

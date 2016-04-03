@@ -1,9 +1,10 @@
-package com.example.supernova.pfe.data;
+package com.example.supernova.pfe.data.models;
 
 
 import android.net.Uri;
 import android.util.Log;
 
+import com.example.supernova.pfe.refactor.Util;
 import com.example.supernova.pfe.tasks.ApiAccess;
 
 import org.json.JSONArray;
@@ -19,6 +20,7 @@ public class Client {
     String phone;
     double remaining;
     double[] location;
+    ArrayList<Invoice> invoices;
 
     public Client() {
     }
@@ -81,8 +83,25 @@ public class Client {
         return this.f_name+" "+l_name;
     }
 
-    public String toJson(){
-        return null;
+    public ArrayList<Invoice> getInvoices() {
+        invoices = (invoices == null) ? new ArrayList<Invoice>() : invoices;
+        return invoices;
+    }
+
+    public void setInvoices(ArrayList<Invoice> invoices) {
+        this.invoices = invoices;
+    }
+
+    public JSONObject toJson(){
+        JSONObject object = new JSONObject();
+        try {
+            object.put("id", id);
+            object.put("f_name", f_name);
+            object.put("l_name", l_name);
+            object.put("phone", phone);
+            object.put("location", new JSONArray().put(location[0]).put(location[1]));
+        }catch (JSONException e) {e.printStackTrace();}
+        return object;
     }
 
     public static ArrayList<Client> fromJsonAll(String json){
@@ -96,7 +115,8 @@ public class Client {
             for(int i = 0; i < clients.length(); ++i){
                 client = clients.getJSONObject(i);
                 JSONArray location = client.getJSONArray("location");
-                c = new Client().setF_name(client.getString("f_name"))
+                c = new Client().setId(client.getString("id"))
+                        .setF_name(client.getString("f_name"))
                         .setL_name(client.getString("l_name"))
                         .setPhone(client.getString("phone"))
                         .setLocation(new double[]{location.getDouble(0), location.getDouble(1)})
@@ -116,11 +136,29 @@ public class Client {
 
 
     public static Client fromJson(String json){
-        return null;                                            
+        JSONObject client;
+        Client c;
+        try {
+            client = new JSONObject(json);
+            JSONArray location = client.getJSONArray("location");
+            c = new Client().setF_name(client.getString("f_name"))
+                    .setL_name(client.getString("l_name"))
+                    .setPhone(client.getString("phone"))
+                    .setLocation(new double[]{location.getDouble(0), location.getDouble(1)});
+            if (client.has("remaining")){
+                c.setRemaining(client.getDouble("remaining"));}
+            if (client.has("invoices")){
+                c.setInvoices(Invoice.fromJsonArray(client.getJSONArray("invoices").toString()));
+            }
+            return c;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public static class ClientApi implements ApiAccess.ApiAccessWork {
-        public static String CLIENTS_URL = "http://10.0.3.2:3000/clients.json";
+        public static String CLIENTS_URL = Util.host + "/clients.json";
 
         public ClientApi(){
         }

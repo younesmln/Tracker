@@ -5,10 +5,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
 import android.telephony.TelephonyManager;
@@ -20,7 +19,7 @@ import android.widget.Toast;
 
 import com.example.supernova.pfe.R;
 import com.example.supernova.pfe.background.BroadcastResult;
-import com.example.supernova.pfe.data.Client;
+import com.example.supernova.pfe.data.models.Client;
 import com.example.supernova.pfe.refactor.Util;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -31,7 +30,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -55,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private WeakHashMap<String, Marker> markersReference;
     private PendingIntent mPendingIntent;
     private BroadcastResult mBroadcast;
+    private boolean connectedToInternet = false;
     private boolean mRegisitredReciever = false;
     private boolean mActivated;
     private SwitchCompat activator;
@@ -91,10 +90,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 .retrieveDataBool(getString(R.string.activated));
         mGoogleApiClient.connect();
         mBroadcast = new BroadcastResult(this);
-        if(Util.isConnected()){
-            Log.v(TAG, "connected without any probleme :)");
+        connectedToInternet = Util.isConnected();
+        if(connectedToInternet){
+            Log.i(TAG, "connected without any probleme :)");
         }else{
-            Log.v(TAG, "not-connected man !!!!!!!!!");
+            Log.i(TAG, "not-connected man !!!!!!!!!");
         }
 
     }
@@ -103,7 +103,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
         MenuItem item = menu.findItem(R.id.custom_menu);
-        item.setActionView(R.layout.action_bar);
+        MenuItemCompat.setActionView(item, R.layout.action_bar);
+        //item.setActionView(R.layout.action_bar);
         activator = ((SwitchCompat) item.getActionView().findViewById(R.id.location_state_btn));
         if (mActivated) {
             activator.setChecked(true);
@@ -135,10 +136,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         switch (id){
             case R.id.action_clients:
                 //before startActivity(new Intent(this, ClientsActivity.class));
-                break;
-            case R.id.action_test:
                 startActivity(new Intent(this, ClientListActivity.class));
                 break;
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -187,34 +187,37 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public void onConnected(Bundle bundle) {
         Log.v(TAG, "GoogleApiClient connected");
-        activator.setEnabled(true);
-        if (mActivated) {
-            startLocationUpdates();
+        if (activator != null) {
+            activator.setEnabled(true);
+            if (mActivated) {
+                startLocationUpdates();
+            }
         }
     }
     @Override
     public void onConnectionSuspended(int i) {
         Log.i(TAG, "GoogleApiClient connection has been suspend");
-        activator.setEnabled(false);
+
+        if (activator != null) {activator.setEnabled(false);}
         mGoogleApiClient.connect();
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        activator.setEnabled(false);
+        if (activator != null ) activator.setEnabled(false);
         Log.i(TAG, "GoogleApiClient connection has failed");
     }
 
 
     protected void startLocationUpdates() {
-        if (checkPermission(Manifest.permission.ACCESS_FINE_LOCATION) && mGoogleApiClient.isConnected()) {
+        if (Util.checkLocationPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) && mGoogleApiClient.isConnected()) {
             LocationServices.FusedLocationApi.requestLocationUpdates(
                     mGoogleApiClient, mLocationRequest, this);
         }
     }
 
     protected void startLocationService() {
-        if (checkPermission(Manifest.permission.ACCESS_FINE_LOCATION) && mGoogleApiClient.isConnected()) {
+        if (Util.checkLocationPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) && mGoogleApiClient.isConnected()) {
             LocationServices.FusedLocationApi
                     .requestLocationUpdates(mGoogleApiClient, mLocationRequest, mPendingIntent);
         }
@@ -228,11 +231,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         if (mGoogleApiClient.isConnected())
             LocationServices.FusedLocationApi.removeLocationUpdates(
                 mGoogleApiClient, this);
-    }
-    public boolean checkPermission(String permission){
-        return !(ActivityCompat.checkSelfPermission(this, permission)
-                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED);
     }
     public void refreshPositions(Client[] clients){
         Toast.makeText(this, clients.length +" elements(s)",Toast.LENGTH_SHORT).show();

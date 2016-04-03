@@ -3,18 +3,19 @@ package com.example.supernova.pfe.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
 import com.example.supernova.pfe.R;
+import com.example.supernova.pfe.exceptions.ResourceNotFoundException;
 import com.example.supernova.pfe.fragments.ClientDetailFragment;
 
 public class ClientDetailActivity extends AppCompatActivity {
+
+    public String client_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,13 +25,6 @@ public class ClientDetailActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "from details ....", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         // Show the Up button in the action bar.
         ActionBar actionBar = getSupportActionBar();
@@ -59,6 +53,17 @@ public class ClientDetailActivity extends AppCompatActivity {
                     .add(R.id.client_detail_container, fragment)
                     .commit();
         }
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ClientDetailActivity.this, NewInvoiceActivity.class);
+                client_id = getIntent().getStringExtra(ClientDetailFragment.ARG_ITEM_ID);
+                if (client_id != null) intent.putExtra(ClientDetailFragment.ARG_ITEM_ID, client_id);
+                else throw new ResourceNotFoundException("client id does not exist !");
+                startActivity(intent);
+            }
+        });
     }
 
     @Override

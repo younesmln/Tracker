@@ -1,27 +1,25 @@
 package com.example.supernova.pfe.activities;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.View;
-
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
-
 import com.example.supernova.pfe.R;
-
 import com.example.supernova.pfe.adapters.ClientsAdapter;
-import com.example.supernova.pfe.data.Client;
+import com.example.supernova.pfe.data.models.Client;
 import com.example.supernova.pfe.fragments.ClientDetailFragment;
+import com.example.supernova.pfe.fragments.ClientFragmentOperation;
 import com.example.supernova.pfe.retrofit.Clients;
 
 import java.util.ArrayList;
@@ -33,27 +31,14 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-/**
- * An activity representing a list of Clients. This activity
- * has different presentations for handset and tablet-size devices. On
- * handsets, the activity presents a list of items, which when touched,
- * lead to a {@link ClientDetailActivity} representing
- * item details. On tablets, the activity presents the list of items and
- * item details side-by-side using two vertical panes.
- */
 public class ClientListActivity extends AppCompatActivity {
 
-    /**
-     * Whether or not the activity is in two-pane mode, i.e. running on a tablet
-     * device.
-     */
     private boolean mTwoPane;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_client_list);
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
@@ -62,7 +47,12 @@ public class ClientListActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(ClientListActivity.this, NewClientActivity.class));
+                FragmentTransaction fTransaction = getSupportFragmentManager().beginTransaction();
+                Fragment fragment = getSupportFragmentManager().findFragmentByTag("clients");
+                if (fragment != null) fTransaction.remove(fragment);
+                fTransaction.addToBackStack(null);
+                ClientFragmentOperation resultFragment = ClientFragmentOperation.newInstance(false);
+                resultFragment.show(fTransaction, "clients");
             }
         });
         // Show the Up button in the action bar.

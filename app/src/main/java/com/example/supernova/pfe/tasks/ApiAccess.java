@@ -38,11 +38,11 @@ public class ApiAccess extends AsyncTask<Void, Void, String>{
         try {
             Log.v(TAG, "\t\t***************");
             connection = (HttpURLConnection) new URL(this.uri.toString()).openConnection();
-            connection.setRequestMethod(this.http_method);
+            connection.setRequestMethod(this.http_method.toUpperCase());
+            connection.setRequestProperty("Content-Type", "application/json");
             if (flag){
                 connection.setDoOutput(true);
                 connection.setDoInput(true);
-                connection.setRequestProperty("Content-Type", "application/json");
                 OutputStream oStream = connection.getOutputStream();
                 oStream.write(this.body.getBytes());
                 oStream.flush();

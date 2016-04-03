@@ -7,7 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.example.supernova.pfe.activities.MainActivity;
-import com.example.supernova.pfe.data.Client;
+import com.example.supernova.pfe.data.models.Client;
 import com.google.gson.Gson;
 
 public class BroadcastResult extends BroadcastReceiver {

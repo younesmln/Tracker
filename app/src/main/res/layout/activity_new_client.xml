@@ -11,31 +11,35 @@
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:minWidth="135dp"
+        android:minWidth="200dp"
         android:id="@+id/f_name"
         android:hint="prenom"
-        android:layout_gravity="center_horizontal"/>
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"/>
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:minWidth="135dp"
+        android:minWidth="200dp"
         android:id="@+id/l_name"
         android:hint="nom"
-        android:layout_gravity="center_horizontal"/>
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"/>
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:minWidth="135dp"
+        android:minWidth="200dp"
         android:id="@+id/phone"
         android:inputType="phone"
         android:hint="phone"
-        android:layout_gravity="center_horizontal"/>
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"/>
     <CheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="je suis a coté du client"
         android:layout_gravity="center_horizontal"
-        android:id="@+id/position"/>
+        android:id="@+id/position"
+        android:layout_marginBottom="16dp"/>
 
     <Button
         android:layout_width="wrap_content"
@@ -43,7 +47,8 @@
         android:text="Submit"
         android:id="@+id/add_client_button"
         android:layout_gravity="center_horizontal"
-        android:onClick="newClient"/>
+        android:onClick="newClient"
+        android:layout_marginBottom="16dp"/>
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
