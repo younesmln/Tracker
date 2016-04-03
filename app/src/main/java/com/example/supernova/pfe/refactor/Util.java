@@ -16,7 +16,7 @@ import java.util.concurrent.Callable;
 
 public class Util {
     public static String host = "http://10.0.3.2:3000";
-    public static String ping_host = "localhost";
+    public static String ping_host = "10.0.3.2";
 
     public static BitmapDescriptor convertHsvRgbColor(String color) {
         float[] hsv = new float[3];

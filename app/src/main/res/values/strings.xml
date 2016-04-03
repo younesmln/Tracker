@@ -19,4 +19,14 @@
     <string name="total_products_display" translatable="false">
         total : <b>%1$.2f</b> DA
     </string>
+
+    <string name="invoice_without_products">"you Can't submit an Invoice without products"</string>
+    <string name="invoice_success">"Invoice successfully created"</string>
+    <string name="client_failure">"Problem occurred when saving client try again !"</string>
+    <string name="client_success">"Client successfully created"</string>
+    <string name="error_fetching">"Problem occurred when fetching data try again !"</string>
+    <string name="no_location">"No location has been found"</string>
+    <string name="failure_call">"Somehow you can't make A phone Call"</string>
+    <string name="client_without_location">"We haven't  any location information about this client"</string>
+    <string name="failure_navigation">"no application to handle navigation in you phone"</string>
 </resources>

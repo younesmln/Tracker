@@ -33,11 +33,20 @@ public class ClientsAdapter extends RecyclerView.Adapter<ClientsAdapter.MyClass>
         return this.data.get(id);
     }
 
+    public List<Client> getData(){
+        return this.data;
+    }
+
     @Override
     public MyClass onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = mInflater.inflate(R.layout.recycle_row, parent, false);
         MyClass holder = new MyClass(v);
         return holder;
+    }
+
+    public void addAll(List<Client> clients){
+        this.data.addAll(clients);
+        notifyItemRangeInserted(this.data.size(), clients.size());
     }
 
     public void delete(int position) {
@@ -54,7 +63,7 @@ public class ClientsAdapter extends RecyclerView.Adapter<ClientsAdapter.MyClass>
 
     @Override
     public int getItemCount() {
-        return data.size();
+        return data != null ? data.size() : 0;
     }
 
     public class MyClass extends RecyclerView.ViewHolder implements View.OnClickListener {

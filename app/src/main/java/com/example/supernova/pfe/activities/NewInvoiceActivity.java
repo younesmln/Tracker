@@ -1,8 +1,10 @@
 package com.example.supernova.pfe.activities;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -23,6 +25,8 @@ import com.example.supernova.pfe.fragments.AddProductFragment;
 import com.example.supernova.pfe.fragments.ClientDetailFragment;
 import com.example.supernova.pfe.refactor.Util;
 import com.example.supernova.pfe.tasks.ApiAccess;
+import com.example.supernova.pfe.tasks.ApiAccess2;
+import com.example.supernova.pfe.tasks.Response;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
@@ -41,6 +45,8 @@ public class NewInvoiceActivity extends AppCompatActivity implements AddProductF
     RecyclerView productRecycler;
     @Bind(R.id.total_text)
     TextView totalTextView;
+    @Bind(R.id.fab)
+    FloatingActionButton fab;
     public static ArrayList<Product> productsList;
     public static ArrayList<CharSequence> productsListLabel;
     ProductsAdapter adapter;
@@ -52,7 +58,6 @@ public class NewInvoiceActivity extends AppCompatActivity implements AddProductF
         ButterKnife.bind(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         client_id = getIntent().getStringExtra(ClientDetailFragment.ARG_ITEM_ID);
         Log.i(TAG, client_id+"   !");
         productsList = getProducts();
@@ -135,14 +140,19 @@ public class NewInvoiceActivity extends AppCompatActivity implements AddProductF
         int id = item.getItemId();
         switch (id){
             case R.id.action_done:
-                parseAndSendInvoice();
+                if (adapter.getItemCount() < 1){
+                    Snackbar.make(fab, getString(R.string.invoice_without_products),
+                            Snackbar.LENGTH_SHORT).show();
+                }else {
+                    parseAndSendInvoice();
+                }
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
 
     public void parseAndSendInvoice(){
-        String response = null;
+        Response response = null;
         final JsonObject object = new JsonObject();
         JsonObject product;
         final JsonArray products = new JsonArray();
@@ -159,11 +169,18 @@ public class NewInvoiceActivity extends AppCompatActivity implements AddProductF
         Uri uri = Uri.parse(Util.host).buildUpon().appendPath("clients")
                 .appendPath(client_id).appendPath("invoices.json").build();
         try {
-            response = new ApiAccess().setUri(uri).setMethod("POST").setBody(object.toString()).execute().get();
+            response = new ApiAccess2().setUri(uri).setMethod("POST").setBody(object.toString()).execute().get();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Log.i(TAG, "! " + response);
+        if (!response.isSuccess()){
+            Snackbar.make(fab, getString(R.string.invoice_without_products),
+                    Snackbar.LENGTH_SHORT).show();
+        }else{
+            Intent intent = new Intent(this, ClientListActivity.class);
+            intent.putExtra("from_invoice", true);
+            startActivity(intent);
+        }
     }
 
 }

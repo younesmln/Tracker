@@ -1,8 +1,10 @@
 package com.example.supernova.pfe.activities;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NavUtils;
@@ -20,11 +22,18 @@ import com.example.supernova.pfe.adapters.ClientsAdapter;
 import com.example.supernova.pfe.data.models.Client;
 import com.example.supernova.pfe.fragments.ClientDetailFragment;
 import com.example.supernova.pfe.fragments.ClientFragmentOperation;
+import com.example.supernova.pfe.refactor.Util;
 import com.example.supernova.pfe.retrofit.Clients;
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -34,16 +43,23 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ClientListActivity extends AppCompatActivity {
 
     private boolean mTwoPane;
+    @Bind(R.id.client_list)
+    RecyclerView recyclerView;
+    @Bind(R.id.fab)
+    FloatingActionButton fab;
+    ClientsAdapter clientsAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_client_list);
+        ButterKnife.bind(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        if (!Util.isConnected()){
+            fab.setEnabled(false);
+        }
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -61,9 +77,7 @@ public class ClientListActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        View recyclerView = findViewById(R.id.client_list);
-        assert recyclerView != null;
-        setupRecyclerView((RecyclerView) recyclerView);
+        setupRecyclerView();
 
         if (findViewById(R.id.client_detail_container) != null) {
             // The detail container view will be present only in the
@@ -71,6 +85,9 @@ public class ClientListActivity extends AppCompatActivity {
             // If this view is present, then the
             // activity should be in two-pane mode.
             mTwoPane = true;
+        }
+        if (getIntent().getBooleanExtra("from_invoice", false)){
+            Snackbar.make(fab, getString(R.string.invoice_success), Snackbar.LENGTH_SHORT).show();
         }
     }
 
@@ -91,27 +108,9 @@ public class ClientListActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        final List<Client> clients = new ArrayList<>();
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Clients.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        Call<List<Client>> clients2 = retrofit.create(Clients.class).getClients();
-        final ClientsAdapter clientsAdapter = new ClientsAdapter(this, clients);
-        //clientsAdapter.notifyItemInserted();
-        clients2.enqueue(new Callback<List<Client>>() {
-            @Override
-            public void onResponse(Call<List<Client>> call, Response<List<Client>> response) {
-                clients.addAll(response.body());
-                clientsAdapter.notifyDataSetChanged();
-            }
-            @Override
-            public void onFailure(Call<List<Client>> call, Throwable t) {
-                Log.v("tag", "error from on failure");
-                t.printStackTrace();
-            }
-        });
+    private void setupRecyclerView() {
+        clientsAdapter = new ClientsAdapter(this, new ArrayList<Client>());
+        refreshData();
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(clientsAdapter);
         clientsAdapter.SetOnItemClickListener(new ClientsAdapter.OnItemClickListener() {
@@ -119,19 +118,19 @@ public class ClientListActivity extends AppCompatActivity {
             public void onItemClick(View view, int position) {
                 Log.v("Master", "ouiiiiii from " + position);
                 String id = clientsAdapter.getItem(position).getId();
-                Log.v("listClients", id+" ");
+                Log.v("listClients", id + " ");
                 if (mTwoPane) {
-                // In two-pane mode, show the detail view in this activity by
-                // adding or replacing the detail fragment using a
-                // fragment transaction.
+                    // In two-pane mode, show the detail view in this activity by
+                    // adding or replacing the detail fragment using a
+                    // fragment transaction.
                     Bundle arguments = new Bundle();
                     arguments.putString(ClientDetailFragment.ARG_ITEM_ID, String.valueOf(id));
                     ClientDetailFragment fragment = new ClientDetailFragment();
                     fragment.setArguments(arguments);
                     getSupportFragmentManager().beginTransaction().replace(R.id.client_detail_container, fragment).commit();
                 } else {
-                // In single-pane mode, simply start the detail activity
-                // for the selected item ID.
+                    // In single-pane mode, simply start the detail activity
+                    // for the selected item ID.
                     Intent detailIntent = new Intent(ClientListActivity.this, ClientDetailActivity.class);
                     detailIntent.putExtra(ClientDetailFragment.ARG_ITEM_ID, String.valueOf(id));
                     startActivity(detailIntent);
@@ -139,6 +138,36 @@ public class ClientListActivity extends AppCompatActivity {
             }
         });
     }
+
+    public void refreshData(){
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(Clients.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        final Call<List<Client>> clients2 = retrofit.create(Clients.class).getClients();
+        clients2.enqueue(new Callback<List<Client>>() {
+            @Override
+            public void onResponse(Call<List<Client>> call, Response<List<Client>> response) {
+                clientsAdapter.getData().clear();
+                clientsAdapter.addAll(response.body());
+            }
+
+            @Override
+            public void onFailure(Call<List<Client>> call, Throwable t) {
+                Snackbar.make(fab, getString(R.string.error_fetching), Snackbar.LENGTH_LONG).show();
+                Log.v("tag", "error from on failure");
+                t.printStackTrace();
+            }
+        });
+    }
+
+    public void onDismissAddFragment(boolean state){
+        if (state){
+            refreshData();
+            Snackbar.make(fab, getString(R.string.client_success), Snackbar.LENGTH_LONG).show();
+        }
+    }
+
 }
 ////////////////////////////////////////////////////////
 

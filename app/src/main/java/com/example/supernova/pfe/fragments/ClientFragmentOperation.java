@@ -22,9 +22,12 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.supernova.pfe.R;
+import com.example.supernova.pfe.activities.ClientListActivity;
 import com.example.supernova.pfe.data.models.Client;
 import com.example.supernova.pfe.refactor.Util;
 import com.example.supernova.pfe.tasks.ApiAccess;
+import com.example.supernova.pfe.tasks.ApiAccess2;
+import com.example.supernova.pfe.tasks.Response;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -111,29 +114,36 @@ public class ClientFragmentOperation extends DialogFragment implements GoogleApi
 
     public void newClient(){
         //mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        String result = null;
+        Response response = null;
         Client c = new Client().setF_name(f_name.getText().toString())
                 .setL_name(l_name.getText().toString())
                 .setPhone(phone.getText().toString());
         if (mGoogleApiClient.isConnected() && mLastLocation != null && positionCheckBox.isChecked()){
-            c.setLocation(new double[]{mLastLocation.getLongitude(), mLastLocation.getLatitude()});
+            c.setLocation(new double[]{ mLastLocation.getLongitude(), mLastLocation.getLatitude() });
         }
         try {
             Log.v(TAG, c.toJson().toString(4));
         } catch (JSONException e) {e.printStackTrace();}
         Uri uri = Uri.parse(Util.host).buildUpon().appendPath("clients.json").build();
         try {
-            result = new ApiAccess().setUri(uri).setMethod("post").setBody(c.toJson().toString()).execute().get();
+            response = new ApiAccess2().setUri(uri).setMethod("post").setBody(c.toJson().toString()).execute().get();
         }catch (Exception e){
             Toast.makeText(getContext(), R.string.connection_problem, Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
-        Log.v(TAG, result+"  ");
+        Log.v(TAG, response.getCode()+"  "+response.getBody());
+        if (response.isSuccess()){
+            //true mean that an operation has been made and successfully finished
+            ((ClientListActivity) getActivity()).onDismissAddFragment(true);
+            this.dismiss();
+        }else{
+            Toast.makeText(getContext(), getString(R.string.client_failure), Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == getActivity().RESULT_OK){
+        if (resultCode == Activity.RESULT_OK){
             switch (requestCode){
                 case RESULT_PICK_CONTACT:
                     Log.e(TAG, "picking a contact successfully");
@@ -166,6 +176,7 @@ public class ClientFragmentOperation extends DialogFragment implements GoogleApi
             }
             f_name.setText(name);
             //Log.i(TAG, phoneNo+" "+name);
+            cursor.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -197,15 +208,18 @@ public class ClientFragmentOperation extends DialogFragment implements GoogleApi
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
             if (mLastLocation != null) {
                 Toast.makeText(getContext(), mLastLocation.getLatitude() +" "+mLastLocation.getLongitude(),Toast.LENGTH_SHORT).show();
+                positionCheckBox.setEnabled(true);
             }
         }
     }
 
     @Override
     public void onConnectionSuspended(int i) {
+        positionCheckBox.setEnabled(false);
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        positionCheckBox.setEnabled(false);
     }
 }

@@ -44,8 +44,8 @@ public class SendLocation {
             json.put("imei", location.getUuid());
             json.put("time", location.getTime());
             JSONArray array = new JSONArray();
-            array.put(0, location.getLt());
-            array.put(1, location.getLg());
+            array.put(0, location.getLg());
+            array.put(1, location.getLt());
             json.put("position",array);
             jsonArray.put(json);
             toSend = jsonArray.toString(4);

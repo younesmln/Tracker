@@ -99,7 +99,8 @@ public class Client {
             object.put("f_name", f_name);
             object.put("l_name", l_name);
             object.put("phone", phone);
-            object.put("location", new JSONArray().put(location[0]).put(location[1]));
+            if (location != null)
+                object.put("location", new JSONArray().put(location[0]).put(location[1]));
         }catch (JSONException e) {e.printStackTrace();}
         return object;
     }
@@ -140,11 +141,13 @@ public class Client {
         Client c;
         try {
             client = new JSONObject(json);
-            JSONArray location = client.getJSONArray("location");
             c = new Client().setF_name(client.getString("f_name"))
                     .setL_name(client.getString("l_name"))
-                    .setPhone(client.getString("phone"))
-                    .setLocation(new double[]{location.getDouble(0), location.getDouble(1)});
+                    .setPhone(client.getString("phone"));
+            if (!client.isNull("location")){
+                JSONArray location = client.getJSONArray("location");
+                c.setLocation(new double[]{location.getDouble(0), location.getDouble(1)});
+            }
             if (client.has("remaining")){
                 c.setRemaining(client.getDouble("remaining"));}
             if (client.has("invoices")){

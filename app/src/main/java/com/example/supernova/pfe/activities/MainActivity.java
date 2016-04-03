@@ -234,13 +234,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
     public void refreshPositions(Client[] clients){
         Toast.makeText(this, clients.length +" elements(s)",Toast.LENGTH_SHORT).show();
-        LatLng location = null;
-        MarkerOptions markerOption = null;
-        Marker marker = null;
-        String title = null;
+        LatLng location;
+        MarkerOptions markerOption;
+        Marker marker;
+        String title;
         for (Client c: clients) {
             title = String.format("| %s |", c.getFullName());
-            location = new LatLng(c.getLocation()[0], c.getLocation()[1]);
+            location = new LatLng(c.getLocation()[1], c.getLocation()[0]);
             markerOption = new MarkerOptions().position(location).title(title)
                     .icon(Util.convertHsvRgbColor("#1122ec"));
             marker = mMap.addMarker(markerOption);

@@ -1,13 +1,15 @@
 package com.example.supernova.pfe.tasks;
 
 public class Response {
-    int code;
-    String body;
+    private int code;
+    private String body;
 
     public Response(int code, String body){
         this.code = code;
         this.body = body;
     }
+
+    public Response(){ this.body = null;}
 
     public String getBody() {
         return body;
@@ -22,5 +24,13 @@ public class Response {
     public Response setCode(int code) {
         this.code = code;
         return this;
+    }
+
+    public static boolean isSuccess(int code){
+        return !(code < 200 || code > 399);
+    }
+
+    public boolean isSuccess(){
+        return !(code < 200 || code > 399);
     }
 }
