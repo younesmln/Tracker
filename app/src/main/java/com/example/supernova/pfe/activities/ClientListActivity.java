@@ -132,7 +132,7 @@ public class ClientListActivity extends AppCompatActivity {
                     // In single-pane mode, simply start the detail activity
                     // for the selected item ID.
                     Intent detailIntent = new Intent(ClientListActivity.this, ClientDetailActivity.class);
-                    detailIntent.putExtra(ClientDetailFragment.ARG_ITEM_ID, String.valueOf(id));
+                    detailIntent.putExtra(ClientDetailFragment.ARG_ITEM_ID, id);
                     startActivity(detailIntent);
                 }
             }

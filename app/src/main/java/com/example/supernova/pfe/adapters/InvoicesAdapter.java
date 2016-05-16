@@ -12,8 +12,11 @@ import com.example.supernova.pfe.R;
 import com.example.supernova.pfe.data.models.Invoice;
 import com.example.supernova.pfe.data.models.Invoice;
 
+import org.joda.time.DateTime;
+
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -43,8 +46,7 @@ public class InvoicesAdapter extends RecyclerView.Adapter<InvoicesAdapter.MyClas
     @Override
     public void onBindViewHolder(MyClass holder, final int position) {
         Invoice current = data.get(position);
-        holder.setValues(current.getCreatedAt() == null ? "mazel " : current.getCreatedAt(),
-                current.getTotal(), current.getRemaining());
+        holder.setValues(current.getCreatedAt(), current.getTotal(), current.getRemaining());
     }
 
     @Override
@@ -68,7 +70,12 @@ public class InvoicesAdapter extends RecyclerView.Adapter<InvoicesAdapter.MyClas
         }
 
         public void setValues(String date, double total, double remaining) {
-            this.textViewDate.setText(date);
+            try {
+                DateTime dt = new DateTime(date);
+                this.textViewDate.setText(String.format(Locale.getDefault(),"%d/%d/%d", dt.getYear(), dt.getMonthOfYear(), dt.getDayOfMonth()));
+            }catch (Exception e){
+                this.textViewDate.setText(date);
+            }
             this.textViewTotal.setText(String.valueOf(total));
             this.textViewRemaining.setText(String.valueOf(remaining));
         }

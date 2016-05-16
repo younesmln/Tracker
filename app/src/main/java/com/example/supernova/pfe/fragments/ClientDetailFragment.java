@@ -23,6 +23,9 @@ import com.example.supernova.pfe.data.models.Client;
 import com.example.supernova.pfe.data.models.Invoice;
 import com.example.supernova.pfe.refactor.Util;
 import com.example.supernova.pfe.tasks.ApiAccess;
+import com.example.supernova.pfe.tasks.Response;
+
+import net.danlew.android.joda.JodaTimeAndroid;
 
 import org.json.JSONObject;
 
@@ -54,7 +57,7 @@ public class ClientDetailFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        JodaTimeAndroid.init(getContext());
         if (getArguments().containsKey(ARG_ITEM_ID) && getArguments().getString(ARG_ITEM_ID) != null) {
              ITEM_ID = getArguments().getString(ARG_ITEM_ID);
             // Load the dummy content specified by the fragment
@@ -109,16 +112,18 @@ public class ClientDetailFragment extends Fragment {
     }
 
     public void getClientAndInvoices(String id){
-        String result = null;
+        Response response = null;
         Uri uri = Uri.parse(Util.host).buildUpon()
                 .appendPath("clients").appendPath(id).appendPath("include_invoices.json").build();
         try {
-            result = new ApiAccess().setMethod("get").setUri(uri).execute().get();
+            response = new ApiAccess().setMethod("get").setUri(uri).execute().get();
         } catch (Exception e) { e.printStackTrace(); }
-        Log.w("detailsFrag", ""+result);
-        client = Client.fromJson(result);
-        setupActionBarWithValues();
-        setupInvoiceRecycleView();
+        Log.w("detailsFrag", ""+response.getBody());
+        client = Client.fromJson(response.getBody());
+        if (client != null) {
+            setupActionBarWithValues();
+            setupInvoiceRecycleView();
+        }
 
     }
 

@@ -15,7 +15,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.Callable;
 
 public class Util {
-    public static String host = "http://10.0.3.2:3000";
+
+    public static String host = "tracker.bggfh27cp9.eu-central-1.elasticbeanstalk.com";
+    //public static String host = "http://10.0.3.2:3000";
     public static String ping_host = "10.0.3.2";
 
     public static BitmapDescriptor convertHsvRgbColor(String color) {

@@ -5,6 +5,9 @@ import android.util.Log;
 
 import com.example.supernova.pfe.data.LocationInfo;
 import com.example.supernova.pfe.refactor.Util;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -14,15 +17,15 @@ import java.util.concurrent.ExecutionException;
 
 public class SendLocation {
 
-    private String toSend;
+    private JsonElement toSend;
 
     public SendLocation(LocationInfo location){
         this.toSend = buildJson(location);
     }
 
-    public String startSending(){
+    public Response startSending(){
         Log.v("SendLocation : ", " start sending *****************************");
-        if(this.toSend != null && this.toSend.length() > 0){
+        if(this.toSend != null && !this.toSend.isJsonNull()){
             Uri uri = Uri.parse(Util.host).buildUpon()
                     .appendPath("api")
                     .appendPath("insertPosition").build();
@@ -31,27 +34,22 @@ public class SendLocation {
                         .setUri(uri).setMethod("POST")
                         .setBody(this.toSend).execute()
                         .get();
-            } catch (Exception e) { e.printStackTrace(); }
+            } catch (Exception e) {
+                e.printStackTrace(); }
         }
         return null;
     }
 
-    public String buildJson(LocationInfo location){
-        JSONArray jsonArray = new JSONArray();
-        JSONObject json = new JSONObject();
-        String toSend = null;
-        try {
-            json.put("imei", location.getUuid());
-            json.put("time", location.getTime());
-            JSONArray array = new JSONArray();
-            array.put(0, location.getLg());
-            array.put(1, location.getLt());
-            json.put("position",array);
-            jsonArray.put(json);
-            toSend = jsonArray.toString(4);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return toSend;
+    public JsonElement buildJson(LocationInfo location){
+        JsonArray jsonArray = new JsonArray();
+        JsonObject json = new JsonObject();
+        json.addProperty("imei", location.getUuid());
+        json.addProperty("time", location.getTime());
+        JsonArray array = new JsonArray();
+        array.add(location.getLg());
+        array.add(location.getLt());
+        json.add("position", array);
+        jsonArray.add(json);
+        return jsonArray;
     }
 }

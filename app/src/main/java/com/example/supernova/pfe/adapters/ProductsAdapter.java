@@ -45,10 +45,22 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.MyClas
         return total;
     }
 
-    public void add(Product p){
-        this.data.add(p);
-        notifyItemInserted(this.data.size()-1);
+    public void addOrUpdate(Product p){
+        boolean insert = true;
+        for (Product tmp : this.data) {
+            if (tmp.getLabel().equals(p.getLabel())) {
+                tmp.setCountToBuy(tmp.getCountToBuy() + p.getCountToBuy());
+                insert = false;
+                notifyDataSetChanged();
+                return;
+            }
+        }
+        if (insert) {
+            this.data.add(p);
+            notifyItemInserted(this.data.size()-1);
+        }
     }
+
 
     @Override
     public MyClass onCreateViewHolder(ViewGroup parent, int viewType) {

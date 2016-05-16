@@ -21,7 +21,6 @@ public class BroadcastResult extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String result = intent.getStringExtra("result");
-        Client[] clients = new Gson().fromJson(result, Client[].class);
-        mActivity.refreshPositions(clients);
+        mActivity.refreshPositions(result);
     }
 }

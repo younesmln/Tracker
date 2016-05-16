@@ -2,6 +2,7 @@ package com.example.supernova.pfe.fragments;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -64,11 +65,16 @@ public class AddProductFragment extends DialogFragment {
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Activity activity = getActivity();
-                if (activity instanceof AddFragmentFinish ){
+                NewInvoiceActivity activity = (NewInvoiceActivity) getActivity();
+                if (activity != null){
                     Product p = (Product) NewInvoiceActivity.productsList.get(productsspinner.getSelectedItemPosition()).clone();
                     p.setCountToBuy(Integer.parseInt(countTextView.getText().toString()));
-                    ((AddFragmentFinish) activity).onDismissAddFragment(p);
+                    if (p.getCount() < p.getCountToBuy()){
+                        Toast.makeText(getActivity(), "choose a lower Quantity",
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    (activity).onDismissAddFragment(p);
                     AddProductFragment.this.dismiss();
 
                 }else{

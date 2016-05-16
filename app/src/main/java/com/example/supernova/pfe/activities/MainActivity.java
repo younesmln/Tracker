@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.example.supernova.pfe.R;
 import com.example.supernova.pfe.background.BroadcastResult;
 import com.example.supernova.pfe.data.models.Client;
+import com.example.supernova.pfe.fragments.ClientDetailFragment;
 import com.example.supernova.pfe.refactor.Util;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -36,8 +37,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.supernova.pfe.data.LocationDB;
 import com.example.supernova.pfe.refactor.MyPreferences;
 import com.example.supernova.pfe.background.LocationService;
+import com.google.gson.Gson;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.WeakHashMap;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
@@ -50,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private Location location;
     private GoogleMap mMap;
     private Marker mMarker;
-    private WeakHashMap<String, Marker> markersReference;
+    private HashMap<Marker, String> markersReference;
     private PendingIntent mPendingIntent;
     private BroadcastResult mBroadcast;
     private boolean connectedToInternet = false;
@@ -70,7 +73,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.map, mapFragment).commit();
         mapFragment.getMapAsync(this);
-        markersReference = new WeakHashMap<>();
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
@@ -160,7 +162,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         LatLng myPos = new LatLng(location.getLatitude(), location.getLongitude());
         if (mMarker == null) {
             mMarker = mMap.addMarker(new MarkerOptions().position(myPos).title("you are here !"));
-            markersReference.put(mMarker.getId(), mMarker);
         }
         else mMarker.setPosition(myPos);
         mMap.animateCamera(CameraUpdateFactory.newLatLng(myPos));
@@ -232,26 +233,37 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             LocationServices.FusedLocationApi.removeLocationUpdates(
                 mGoogleApiClient, this);
     }
-    public void refreshPositions(Client[] clients){
-        Toast.makeText(this, clients.length +" elements(s)",Toast.LENGTH_SHORT).show();
-        LatLng location;
-        MarkerOptions markerOption;
-        Marker marker;
-        String title;
-        for (Client c: clients) {
-            title = String.format("| %s |", c.getFullName());
-            location = new LatLng(c.getLocation()[1], c.getLocation()[0]);
-            markerOption = new MarkerOptions().position(location).title(title)
-                    .icon(Util.convertHsvRgbColor("#1122ec"));
-            marker = mMap.addMarker(markerOption);
-            markersReference.put(marker.getId(), marker);
-            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-                @Override
-                public boolean onMarkerClick(Marker marker) {
-                    Toast.makeText(MainActivity.this, marker.getTitle(), Toast.LENGTH_SHORT).show();
-                    return false;
+    public void refreshPositions(String result){
+        Client[] clients = new Gson().fromJson(result, Client[].class);
+        if (clients != null) {
+            if (markersReference != null && markersReference.size() > 0) {
+                for (Marker m : markersReference.keySet()){
+                    m.remove();
                 }
-            });
+            }
+            markersReference = new HashMap<>();
+            Toast.makeText(this, clients.length +" elements(s)",Toast.LENGTH_SHORT).show();
+            for (Client c: clients) {
+                if (c.getLocation() == null) continue;
+                String title = c.getFullName();
+                LatLng location = new LatLng(c.getLocation()[1], c.getLocation()[0]);
+                MarkerOptions markerOption = new MarkerOptions().position(location).title(title)
+                        .icon(Util.convertHsvRgbColor("#1122ec"));
+                Marker marker = mMap.addMarker(markerOption);
+                markersReference.put(marker, c.getId());
+                mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                    @Override
+                    public boolean onMarkerClick(Marker marker) {
+                        //Toast.makeText(MainActivity.this, marker.getTitle(), Toast.LENGTH_SHORT).show();
+                        String client_id = markersReference.get(marker);
+                        if (client_id == null || client_id.equals("-1")) return false;
+                        Intent detailIntent = new Intent(MainActivity.this, ClientDetailActivity.class);
+                        detailIntent.putExtra(ClientDetailFragment.ARG_ITEM_ID, client_id);
+                        startActivity(detailIntent);
+                        return true;
+                    }
+                });
+            }
         }
     }
 }

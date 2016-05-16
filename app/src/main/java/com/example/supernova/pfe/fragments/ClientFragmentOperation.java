@@ -26,7 +26,6 @@ import com.example.supernova.pfe.activities.ClientListActivity;
 import com.example.supernova.pfe.data.models.Client;
 import com.example.supernova.pfe.refactor.Util;
 import com.example.supernova.pfe.tasks.ApiAccess;
-import com.example.supernova.pfe.tasks.ApiAccess2;
 import com.example.supernova.pfe.tasks.Response;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -119,14 +118,14 @@ public class ClientFragmentOperation extends DialogFragment implements GoogleApi
                 .setL_name(l_name.getText().toString())
                 .setPhone(phone.getText().toString());
         if (mGoogleApiClient.isConnected() && mLastLocation != null && positionCheckBox.isChecked()){
-            c.setLocation(new double[]{ mLastLocation.getLongitude(), mLastLocation.getLatitude() });
+            c.setLocation(new double[]{ mLastLocation.getLatitude(), mLastLocation.getLongitude() });
         }
         try {
             Log.v(TAG, c.toJson().toString(4));
         } catch (JSONException e) {e.printStackTrace();}
         Uri uri = Uri.parse(Util.host).buildUpon().appendPath("clients.json").build();
         try {
-            response = new ApiAccess2().setUri(uri).setMethod("post").setBody(c.toJson().toString()).execute().get();
+            response = new ApiAccess().setUri(uri).setMethod("post").setBody(c.toJson()).execute().get();
         }catch (Exception e){
             Toast.makeText(getContext(), R.string.connection_problem, Toast.LENGTH_SHORT).show();
             e.printStackTrace();

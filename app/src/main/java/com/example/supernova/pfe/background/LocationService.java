@@ -19,6 +19,7 @@ import com.example.supernova.pfe.R;
 import com.example.supernova.pfe.data.CRUD;
 import com.example.supernova.pfe.data.LocationDB;
 import com.example.supernova.pfe.data.LocationInfo;
+import com.example.supernova.pfe.tasks.Response;
 import com.example.supernova.pfe.tasks.SendLocation;
 import com.google.android.gms.location.LocationResult;
 
@@ -37,12 +38,12 @@ public class LocationService extends IntentService {
 
     public LocationService() {
         super("locationUpdates");
-        mNotification = new NotificationCompat.Builder(this)
+        /*mNotification = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.abc_btn_rating_star_off_mtrl_alpha)
                 .setContentTitle("Location change !")
                 .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                 .setVibrate(new long[]{400, 600, 900, 1100 })
-                .setAutoCancel(true);
+                .setAutoCancel(true);*/
     }
 
     @Override
@@ -59,7 +60,7 @@ public class LocationService extends IntentService {
             mDb = new LocationDB(this).getWritableDatabase();
             long idd = new CRUD(mDb).insert(mLocationInfo);
             mDb.close();
-            ++mIdd;
+            /*++mIdd;
             String test;
             if (idd > 0){
                 test = "insert with id : "+idd;
@@ -83,12 +84,12 @@ public class LocationService extends IntentService {
 
             NotificationManager notificationManager = (NotificationManager)
                     getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.notify(mId, mNotification.build());
+            notificationManager.notify(mId, mNotification.build());*/
             if (Util.isConnected()) {
-                String result = new SendLocation(mLocationInfo).startSending();
-                Log.v("ouiiiiii", result+"  ");
+                Response response = new SendLocation(mLocationInfo).startSending();
+                Log.v("ouiiiiii", response.getBody()+"  ");
                 Intent i = new Intent(BroadcastResult.IntentFilterString);
-                i.putExtra("result", result);
+                i.putExtra("result", response.getBody());
                 sendBroadcast(i);
             }
         }

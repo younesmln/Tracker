@@ -6,6 +6,10 @@ import android.util.Log;
 
 import com.example.supernova.pfe.refactor.Util;
 import com.example.supernova.pfe.tasks.ApiAccess;
+import com.example.supernova.pfe.tasks.Response;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -101,7 +105,9 @@ public class Client {
             object.put("phone", phone);
             if (location != null)
                 object.put("location", new JSONArray().put(location[0]).put(location[1]));
-        }catch (JSONException e) {e.printStackTrace();}
+        }catch (JSONException e){
+
+        }
         return object;
     }
 
@@ -131,12 +137,13 @@ public class Client {
 
 
     public static ArrayList<Client> fetchClients(){
-        String jsonResult = new ClientApi().fetchAllClients();
+        String jsonResult = new ClientApi().fetchAllClients().getBody();
         return fromJsonAll(jsonResult);
     }
 
 
     public static Client fromJson(String json){
+        if (json == null || json.length() == 0) return null;
         JSONObject client;
         Client c;
         try {
@@ -160,23 +167,19 @@ public class Client {
         }
     }
 
-    public static class ClientApi implements ApiAccess.ApiAccessWork {
-        public static String CLIENTS_URL = Util.host + "/clients.json";
+    public static class ClientApi {
+        public static Uri CLIENTS_URL = Uri.parse(Util.host).buildUpon()
+                                        .appendEncodedPath("clients.json").build();
 
         public ClientApi(){
         }
 
-        public String fetchAllClients(){
+        public Response fetchAllClients(){
             try {
                 return new ApiAccess().setMethod("GET")
-                        .setUri(Uri.parse(CLIENTS_URL)).setCaller(this).execute().get();
+                        .setUri(CLIENTS_URL).execute().get();
             } catch (Exception e) {e.printStackTrace();}
             return null;
-        }
-
-        @Override
-        public void doStuffWithResult(String result) {
-
         }
     }
 }

@@ -29,4 +29,5 @@
     <string name="failure_call">"Somehow you can't make A phone Call"</string>
     <string name="client_without_location">"We haven't  any location information about this client"</string>
     <string name="failure_navigation">"no application to handle navigation in you phone"</string>
+    <string name="no_products">There is no products</string>
 </resources>

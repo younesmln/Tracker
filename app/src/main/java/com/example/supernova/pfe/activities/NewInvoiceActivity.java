@@ -25,14 +25,11 @@ import com.example.supernova.pfe.fragments.AddProductFragment;
 import com.example.supernova.pfe.fragments.ClientDetailFragment;
 import com.example.supernova.pfe.refactor.Util;
 import com.example.supernova.pfe.tasks.ApiAccess;
-import com.example.supernova.pfe.tasks.ApiAccess2;
 import com.example.supernova.pfe.tasks.Response;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -73,12 +70,17 @@ public class NewInvoiceActivity extends AppCompatActivity implements AddProductF
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                FragmentTransaction fTransaction = getSupportFragmentManager().beginTransaction();
-                Fragment fragment = getSupportFragmentManager().findFragmentByTag("dialog");
-                if (fragment != null) fTransaction.remove(fragment);
-                fTransaction.addToBackStack(null);
-                AddProductFragment resultFragment = AddProductFragment.newInstance();
-                resultFragment.show(fTransaction, "dialog");
+                if (productsListLabel != null && productsListLabel.size() > 0) {
+                    FragmentTransaction fTransaction = getSupportFragmentManager().beginTransaction();
+                    Fragment fragment = getSupportFragmentManager().findFragmentByTag("dialog");
+                    if (fragment != null) fTransaction.remove(fragment);
+                    fTransaction.addToBackStack(null);
+                    AddProductFragment resultFragment = AddProductFragment.newInstance();
+                    resultFragment.show(fTransaction, "dialog");
+                }else{
+                    Snackbar.make(fab, getString(R.string.no_products),
+                            Snackbar.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -113,18 +115,18 @@ public class NewInvoiceActivity extends AppCompatActivity implements AddProductF
     @Override
     public void onDismissAddFragment(Product p) {
         Toast.makeText(NewInvoiceActivity.this, p.getLabel() + " " + p.getCountToBuy(), Toast.LENGTH_SHORT).show();
-        adapter.add(p);
+        adapter.addOrUpdate(p);
         totalTextView.setText(String.format(getString(R.string.total_products_display), adapter.getTotal()));
     }
 
     public ArrayList<Product> getProducts(){
         ArrayList<Product> products;
         Uri uri = Uri.parse(Util.host).buildUpon().appendPath("products.json").build();
-        String result = null;
+        Response response = null;
         try {
-            result = new ApiAccess().setMethod("get").setUri(uri).execute().get();
+            response = new ApiAccess().setMethod("get").setUri(uri).execute().get();
         }catch (Exception e){e.printStackTrace();}
-        products = Product.fromJsonArray(result);
+        products = Product.fromJsonArray(response.getBody());
         Log.i(TAG, products.size()+" !!!");
         return products;
     }
@@ -143,7 +145,7 @@ public class NewInvoiceActivity extends AppCompatActivity implements AddProductF
                 if (adapter.getItemCount() < 1){
                     Snackbar.make(fab, getString(R.string.invoice_without_products),
                             Snackbar.LENGTH_SHORT).show();
-                }else {
+                } else {
                     parseAndSendInvoice();
                 }
                 break;
@@ -169,7 +171,7 @@ public class NewInvoiceActivity extends AppCompatActivity implements AddProductF
         Uri uri = Uri.parse(Util.host).buildUpon().appendPath("clients")
                 .appendPath(client_id).appendPath("invoices.json").build();
         try {
-            response = new ApiAccess2().setUri(uri).setMethod("POST").setBody(object.toString()).execute().get();
+            response = new ApiAccess().setUri(uri).setMethod("POST").setBody(object).execute().get();
         } catch (Exception e) {
             e.printStackTrace();
         }

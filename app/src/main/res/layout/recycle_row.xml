@@ -15,8 +15,8 @@
             <ImageView
                 android:id="@+id/image"
                 android:src="@drawable/common_full_open_on_phone"
-                android:layout_width="75dp"
-                android:layout_height="75dp"
+                android:layout_width="1dp"
+                android:layout_height="1dp"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginRight="16dp" />
@@ -27,7 +27,7 @@
                 android:text="text top"
                 android:layout_toRightOf="@+id/image"
                 android:layout_alignParentTop="true"
-                android:textSize="21sp" />
+                android:textSize="17sp" />
             <TextView
                 android:id="@+id/text_bottom"
                 android:layout_width="wrap_content"
@@ -36,6 +36,13 @@
                 android:layout_below="@+id/text_top"
                 android:layout_toRightOf="@+id/image"
                 />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="remaining: "
+                android:layout_alignParentTop="true"
+
+                android:layout_toLeftOf="@+id/text_right"/>
             <TextView
                 android:id="@+id/text_right"
                 android:layout_width="wrap_content"

@@ -58,7 +58,7 @@ public class ClientsAdapter extends RecyclerView.Adapter<ClientsAdapter.MyClass>
     public void onBindViewHolder(MyClass holder, final int position) {
         Client current = data.get(position);
         holder.setValues(R.drawable.common_full_open_on_phone, current.getFullName(),
-                current.getPhone(), "right text");
+                current.getPhone(), String.valueOf(current.getRemaining()));
     }
 
     @Override
